@@ -33,4 +33,4 @@ jobs:
         with:
           name: schildichat-web
           path: element-web/dist/
-          retention-days: 30
+          retention-days: 90
