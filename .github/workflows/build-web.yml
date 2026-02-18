@@ -1,0 +1,36 @@
+name: Build Web
+
+on:
+  push:
+    branches: [sc]
+  workflow_dispatch:
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Setup & Build
+        run: |
+          # setup.sh expects 'yarnpkg' but ubuntu has 'yarn'
+          sudo ln -sf $(which yarn) /usr/local/bin/yarnpkg
+          make web
+
+      - name: Upload web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: schildichat-web
+          path: element-web/dist/
+          retention-days: 30
