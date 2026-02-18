@@ -37,7 +37,7 @@ download:
 backup:
 	@echo "Backing up $(WEB_ROOT) to $(BACKUP_DIR)..."
 	mkdir -p $(BACKUP_DIR)
-	cd $(WEB_ROOT) && find . -maxdepth 1 ! -name '.' ! -name '.tmp' ! -name '.git' \
+	find $(WEB_ROOT) -maxdepth 1 ! -name '$(notdir $(WEB_ROOT))' ! -name '.tmp' ! -name '.git' \
 		-exec cp -a {} $(BACKUP_DIR)/ \;
 	@echo "Backup complete"
 
@@ -48,7 +48,7 @@ deploy:
 		[ -f $(WEB_ROOT)/$$cfg ] && cp $(WEB_ROOT)/$$cfg $(TMP_DIR)/_preserve_$$cfg 2>/dev/null; \
 	done || true
 	@echo "Installing to $(WEB_ROOT)..."
-	cd $(WEB_ROOT) && find . -maxdepth 1 ! -name '.' ! -name '.tmp' ! -name '.git' -exec rm -rf {} +
+	find $(WEB_ROOT) -maxdepth 1 ! -path $(WEB_ROOT) ! -name '.tmp' ! -name '.git' -exec rm -rf {} +
 	cp -a $(TMP_DIR)/* $(WEB_ROOT)/ 2>/dev/null || true
 	@for cfg in $(CONFIGS); do \
 		[ -f $(WEB_ROOT)/_preserve_$$cfg ] && mv $(WEB_ROOT)/_preserve_$$cfg $(WEB_ROOT)/$$cfg; \
@@ -64,6 +64,6 @@ cleanup:
 rollback:
 	@if [ ! -d "$(BACKUP_DIR)" ]; then echo "No backup found at $(BACKUP_DIR)"; exit 1; fi
 	@echo "Rolling back from $(BACKUP_DIR)..."
-	cd $(WEB_ROOT) && find . -maxdepth 1 ! -name '.' ! -name '.tmp' ! -name '.git' -exec rm -rf {} +
+	find $(WEB_ROOT) -maxdepth 1 ! -path $(WEB_ROOT) ! -name '.tmp' ! -name '.git' -exec rm -rf {} +
 	cp -a $(BACKUP_DIR)/* $(WEB_ROOT)/
 	@echo "Rolled back"
